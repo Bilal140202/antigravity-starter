@@ -206,7 +206,7 @@ if [[ -d "$SKILLS_SRC_DIR" ]]; then
     COMMANDS_DEST_ROOT="$(pwd)/.claude/commands"
     SKILL_COUNT=0
 
-    # Copy skill directories containing SKILL.md
+    # Copy skill directories containing SKILL.md (including all reference files)
     for skill_dir in "$SKILLS_SRC_DIR"/*/; do
         [[ -d "$skill_dir" ]] || continue
         skill_name=$(basename "$skill_dir")
@@ -214,7 +214,7 @@ if [[ -d "$SKILLS_SRC_DIR" ]]; then
 
         if [[ -f "$skill_md" ]]; then
             mkdir -p "$SKILLS_DEST_ROOT/$skill_name"
-            cp -f "$skill_md" "$SKILLS_DEST_ROOT/$skill_name/SKILL.md"
+            cp -rf "$skill_dir"/* "$SKILLS_DEST_ROOT/$skill_name/" 2>/dev/null || true
             ok "Installed skill: /$skill_name"
             ((SKILL_COUNT++)) || true
         fi

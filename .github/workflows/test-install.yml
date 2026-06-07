@@ -69,9 +69,16 @@ jobs:
           test -f "CLAUDE.md"
           echo "CLAUDE.md exists in project root"
 
-      # Step 8: Verify custom skills were installed
+      # Step 8: Verify custom skills were installed (all 20)
       - name: Verify skills were installed
         run: |
           test -d .claude/skills
+          # Count skill directories with SKILL.md
+          SKILL_COUNT=$(find .claude/skills -name "SKILL.md" | wc -l)
+          echo "Found $SKILL_COUNT skills installed"
+          test "$SKILL_COUNT" -ge 20
+          # Spot-check a few key skills
           test -f .claude/skills/wrapup/SKILL.md
-          echo "Custom skills installed to .claude/skills/"
+          test -f .claude/skills/researcher/SKILL.md
+          test -f .claude/skills/security/SKILL.md
+          echo "All skills verified"

@@ -16,7 +16,7 @@ This starter kit automates the entire setup:
 2. Registers the Claude Code skill via `graphify install`
 3. Installs a post-commit git hook for automatic graph rebuilds
 4. Sets up project-level `CLAUDE.md` with graph-first rules
-5. Installs custom helper skills (e.g., `/wrapup` for session summaries)
+5. Installs 20 custom skills (e.g., `/wrapup`, `/researcher`, `/security`, `/build-premium-website`, and more)
 
 ## Quick Start
 
@@ -120,11 +120,32 @@ The git hook installed by `graphify hook install` runs automatically on every co
 
 ## Custom Skills
 
+20 custom skills are installed alongside graphify. Each skill is a directory with a `SKILL.md` and optional reference files.
+
 | Command | Purpose |
 |---------|---------|
+| `/albert-dm` | Reply to DMs in Albert's voice |
+| `/build-premium-website` | Build animated marketing sites (React + Vite + Tailwind + GSAP) |
+| `/composio` | AI agent integrations with third-party apps |
+| `/cost-reducer` | Cloud & infrastructure cost optimization |
+| `/create-skill` | Create new Claude Code custom skills |
+| `/customer-support` | Customer support responses & workflows |
+| `/frontend-design` | Production-grade frontend interfaces |
+| `/instantly-campaign` | Cold email campaign creator (Instantly) |
+| `/know-me` | Cross-session memory (auto-activates) |
+| `/n8n` | n8n workflow automations & custom nodes |
+| `/new-client-system` | Scaffold full-stack client projects (Next.js + Trigger.dev) |
+| `/researcher` | Deep multi-source research & synthesis |
+| `/scalability` | Scalable system design & optimization |
+| `/security` | Application security (OWASP, web & desktop) |
+| `/self-healing` | Self-improvement: pattern recognition & skill creation |
+| `/setup-codex-precheck` | Install codex pre-edit review hook |
+| `/trigger-dev` | Trigger.dev background jobs & automations |
+| `/upwork` | Upwork profile optimization |
+| `/upwork-proposal` | Upwork proposal writer |
 | `/wrapup` | End-of-session summary saved to `.claude/memory/` |
 
-See [`skills/README.md`](./skills/README.md) for documentation and how to create your own skills.
+See [`skills/README.md`](./skills/README.md) for full documentation and how to create your own skills.
 
 ## How to Update
 
@@ -181,8 +202,26 @@ antigravity-starter/
 ├── CLAUDE.md                        # Project-level graph-first rules
 ├── RULES.md                         # Detailed protocol reference
 ├── skills/
-│   ├── wrapup/
-│   │   └── SKILL.md                # Session summary skill
+│   ├── albert-dm/                   # Albert DM voice skill
+│   ├── build-premium-website/       # Premium site builder (14 reference files)
+│   ├── composio/                    # Composio integrations
+│   ├── cost-reducer/                # Cost optimization
+│   ├── create-skill/                # Skill creator meta-tool
+│   ├── customer-support/            # Support workflows
+│   ├── frontend-design/             # Frontend design quality
+│   ├── instantly-campaign/         # Cold email campaigns
+│   ├── know-me/                     # Cross-session memory
+│   ├── n8n/                         # n8n workflow automation
+│   ├── new-client-system/           # Client scaffolder (69 template files)
+│   ├── researcher/                  # Deep research analyst
+│   ├── scalability/                 # System scalability
+│   ├── security/                    # Application security
+│   ├── self-healing/                # Self-improvement engine
+│   ├── setup-codex-precheck/        # Codex review hook
+│   ├── trigger-dev/                 # Trigger.dev background jobs
+│   ├── upwork/                      # Profile optimizer
+│   ├── upwork-proposal/             # Proposal writer
+│   ├── wrapup/                      # Session summary
 │   └── README.md                    # Skills documentation
 ├── .github/
 │   └── workflows/

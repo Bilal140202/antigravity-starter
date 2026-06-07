@@ -50,3 +50,22 @@ Or rely on the post-commit git hook (installed via `graphify hook install`) whic
 | `graphify-out/wiki/` | Agent-crawlable wiki (if built with `--wiki`) |
 | `graphify-out/cache/` | SHA256 cache — re-runs only process changed files |
 | `graphify-out/memory/` | Q&A results saved from previous queries |
+
+## Available Skills
+
+This project has 20 custom skills installed in `.claude/skills/`. Type `/` in Claude Code to see them all. Key skills:
+
+- `/researcher` — Deep multi-source research & synthesis
+- `/security` — Application security reviews (OWASP, web & desktop)
+- `/scalability` — Scalable system design
+- `/cost-reducer` — Cloud & infrastructure cost optimization
+- `/build-premium-website` — Animated marketing sites (React + Vite + Tailwind + GSAP)
+- `/new-client-system` — Scaffold full-stack client projects (Next.js + Trigger.dev)
+- `/n8n` — n8n workflow automations & custom nodes
+- `/composio` — AI agent integrations with third-party apps
+- `/know-me` — Cross-session memory (auto-activates)
+- `/self-healing` — Self-improvement: pattern recognition & skill creation
+- `/create-skill` — Create new Claude Code custom skills
+- `/wrapup` — End-of-session summary
+
+See `skills/README.md` for full documentation.

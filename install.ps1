@@ -280,10 +280,8 @@ if (Test-Path $skillsSourceDir) {
         $skillMd = Join-Path $skillDir.FullName "SKILL.md"
         if (Test-Path $skillMd) {
             $destDir = Join-Path $skillsDestRoot $skillDir.Name
-            if (-not (Test-Path $destDir)) {
-                New-Item -ItemType Directory -Path $destDir -Force | Out-Null
-            }
-            Copy-Item -Path $skillMd -Destination (Join-Path $destDir "SKILL.md") -Force
+            # Copy entire skill directory (SKILL.md + all reference files)
+            Copy-Item -Path $skillDir.FullName -Destination $destDir -Recurse -Force
             Write-Success "Installed skill: /$($skillDir.Name)"
             $skillCount++
         }
