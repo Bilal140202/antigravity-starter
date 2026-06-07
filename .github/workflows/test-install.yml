@@ -2,6 +2,14 @@
 # Antigravity Starter — CI Pipeline
 # Tests the install.sh script on Ubuntu to verify cross-platform reliability.
 #
+# What we test:
+#   1. Python 3.12 is available
+#   2. install.sh runs without errors
+#   3. graphify CLI is accessible (graphify --version)
+#   4. Claude Code skill files were created (graphify install)
+#   5. CLAUDE.md was copied to project root
+#   6. Custom skills were installed to .claude/skills/
+#
 # Author:     Bilal Ansari
 # Website:    https://ansaribilal.com
 # Repository: https://github.com/Bilal140202/antigravity-starter
@@ -23,11 +31,11 @@ jobs:
     timeout-minutes: 10
 
     steps:
-      # Step 1: Checkout the repository code
+      # Step 1: Checkout the repository
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Step 2: Ensure Python 3.12 is available (graphifyy requirement)
+      # Step 2: Install Python 3.12 (graphifyy requires 3.10+)
       - name: Install Python 3.12
         uses: actions/setup-python@v5
         with:
@@ -43,23 +51,27 @@ jobs:
         env:
           HOME: /home/runner
 
-      # Step 5: Verify graphify CLI is accessible and working
+      # Step 5: Verify graphify CLI is installed and accessible
       - name: Verify graphify is installed
         run: |
           export PATH="$HOME/.local/bin:$PATH"
-          graphify --version
+          graphify --help
 
-      # Step 6: Verify RULES.md was copied to the correct config location
-      - name: Verify RULES.md was copied
+      # Step 6: Verify Claude Code skill was registered
+      - name: Verify Claude Code skill exists
         run: |
-          test -f "$HOME/.config/agent-rules-sync/RULES.md"
-          echo "RULES.md exists at $HOME/.config/agent-rules-sync/RULES.md"
+          test -f "$HOME/.claude/skills/graphify/SKILL.md"
+          echo "Claude Code skill installed at ~/.claude/skills/graphify/SKILL.md"
 
-      # Step 7: Verify all skill files were installed to .agents/skills/
+      # Step 7: Verify CLAUDE.md was copied to project root
+      - name: Verify CLAUDE.md was copied
+        run: |
+          test -f "CLAUDE.md"
+          echo "CLAUDE.md exists in project root"
+
+      # Step 8: Verify custom skills were installed
       - name: Verify skills were installed
         run: |
-          test -d .agents/skills
-          test -f .agents/skills/notebooklm.md
-          test -f .agents/skills/wrapup.md
-          test -f .agents/skills/README.md
-          echo "All 3 skills installed correctly"
+          test -d .claude/skills
+          test -f .claude/skills/wrapup/SKILL.md
+          echo "Custom skills installed to .claude/skills/"

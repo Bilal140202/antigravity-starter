@@ -1,61 +1,61 @@
 # Skills
 
-This directory contains Antigravity IDE skills — modular, plain-markdown capabilities that extend the AI assistant with specialised workflows. Each skill is a self-documented `.md` file with YAML frontmatter that the Antigravity IDE auto-detects and makes available as slash commands.
+Custom Claude Code skills installed by the Antigravity Starter. Each skill is a `SKILL.md` file following the [Claude Code skills format](https://docs.anthropic.com/en/docs/claude-code/skills) — markdown with YAML frontmatter that Claude Code discovers at startup.
 
 **Author**: [Bilal Ansari](https://ansaribilal.com)
 **Project**: [antigravity-starter](https://github.com/Bilal140202/antigravity-starter)
 
-## Available Skills
+## How Claude Code Skills Work
 
-### `/notebooklm` — NotebookLM Integration
+Skills live in specific directories and are auto-discovered:
 
-**Purpose**: Connect your workspace to Google NotebookLM for persistent, queryable AI memory that survives across sessions and projects.
+| Scope | Path | Availability |
+|-------|------|-------------|
+| Personal (global) | `~/.claude/skills/<name>/SKILL.md` | All your projects |
+| Project (local) | `.claude/skills/<name>/SKILL.md` | This project only |
+| Legacy commands | `.claude/commands/<name>.md` | This project only |
 
-**When to use**:
-- Storing session context and decisions for future reference
-- Retrieving past knowledge and architectural decisions from earlier sessions
-- Cross-project memory and pattern reuse across different codebases
+The **directory name** becomes the slash command. For example:
+- `.claude/skills/wrapup/SKILL.md` → type `/wrapup` in Claude Code
 
-**Invoke**: Type `/notebooklm` in the Antigravity IDE chat for status, or `/notebooklm <command>` for specific actions.
+## Skills in This Project
 
-**See**: [notebooklm.md](./notebooklm.md) for full documentation, prerequisites (Python 3.10+, venv, Google OAuth), usage patterns, and troubleshooting.
+### `/graphify` — Knowledge Graph (installed by `graphify install`)
+
+This is the core graphify skill, installed globally to `~/.claude/skills/graphify/SKILL.md` by running `graphify install`. It is NOT in this repository — it comes from the `graphifyy` Python package.
+
+**Purpose**: Turn any folder into a queryable knowledge graph.
+
+**Key commands** (typed inside Claude Code):
+- `/graphify .` — Full pipeline
+- `/graphify . --no-viz` — Skip visualisation
+- `/graphify . --update` — Incremental rebuild
+- `/graphify query "<question>"` — Query the graph
+- `/graphify path "A" "B"` — Shortest path between concepts
+- `/graphify explain "X"` — Explain a node
+
+**Source**: [safishamsi/graphify](https://github.com/safishamsi/graphify)
 
 ---
 
-### `/wrapup` — Session Wrapup and Memory Sync
+### `/wrapup` — Session Summary
 
-**Purpose**: End-of-session cleanup that generates a structured summary markdown, pushes it to NotebookLM for cloud persistence, and saves memories to local files for offline backup.
-
-**When to use**:
-- At the end of every coding session to preserve context
-- Before handing off work to another team member
-- After major architectural decisions to lock them into persistent memory
-- As periodic checkpoints during long sessions (`/wrapup --quick`)
-
-**Invoke**: Type `/wrapup` for a full session wrapup, or `/wrapup --quick` for a lightweight checkpoint that skips the NotebookLM upload.
-
-**See**: [wrapup.md](./wrapup.md) for full documentation, the four-step pipeline, summary format, file output structure, and troubleshooting.
-
----
-
-### `/graphify` — Graph-First Code Intelligence (built-in)
-
-**Purpose**: Query the codebase knowledge graph to understand structure, relationships, and context without reading raw files. This is the core capability enforced by the Workspace Action Proof protocol.
+**Purpose**: End-of-session cleanup that generates a structured markdown summary and saves it to `.claude/memory/`.
 
 **When to use**:
-- Before starting any task (required by Workspace Action Proof protocol in `RULES.md`)
-- Understanding how code is organised and what depends on what
-- Finding relevant files, functions, and dependencies without manual searching
+- End of a coding session to preserve context
+- Before handing off a project to another developer
+- After major architectural decisions
 
-**Invoke**: Type `/graphify query "<your question>"` in the IDE chat, or run `graphify query "<question>"` directly in the terminal.
+**Invoke**: Type `/wrapup` in Claude Code.
 
-**Note**: This is a built-in graphify command, not a skill file. It is always available after running the install script. The knowledge graph is built by `graphify .` and stored in `graphify-out/`.
+**Output**: `.claude/memory/session-<timestamp>.md` + append to `.claude/memory/decisions.md`
 
-## Skill Installation
+**File**: [`wrapup/SKILL.md`](./wrapup/SKILL.md)
 
-Skills are copied to `.agents/skills/` by the install script (`install.ps1` on Windows, `install.sh` on macOS/Linux). The Antigravity IDE automatically detects and loads all `.md` files in `.agents/skills/` as available slash commands.
+## Installation
 
-To re-install or update skills after adding new files to this directory:
+Skills are installed by the install scripts:
 
 ```powershell
 # Windows PowerShell
@@ -65,30 +65,32 @@ To re-install or update skills after adding new files to this directory:
 bash install.sh
 ```
 
+The scripts copy skill directories to `.claude/skills/` and legacy `.md` files to `.claude/commands/` in the current project directory.
+
 ## Creating New Skills
 
-The skill system is designed to be extensible. To add your own custom skill:
+To add a custom skill:
 
-1. Create a new `.md` file in this `skills/` directory with a descriptive name (e.g. `my-workflow.md`)
-2. Add YAML frontmatter with the required `name` and `description` fields:
+1. Create a directory in `skills/` with a descriptive name: `skills/my-skill/`
+2. Create `SKILL.md` inside it with YAML frontmatter:
 
 ```yaml
 ---
-name: my-workflow
-description: "Brief description of what this skill does and when to use it."
-author: "Bilal Ansari"
-website: "https://ansaribilal.com"
+name: my-skill
+description: "What this skill does and when to use it."
 ---
+
+# My Skill
+
+Instructions for Claude Code to follow when this skill is invoked.
 ```
 
-3. Document the skill's purpose, available commands, usage patterns, and troubleshooting steps
-4. Re-run the install script to copy the new skill to `.agents/skills/` where the IDE will detect it
+3. Re-run the install script to copy it to `.claude/skills/my-skill/SKILL.md`
+4. Open Claude Code — the skill appears as `/my-skill`
 
 ## File Format
 
-All skills are **plain markdown files with YAML frontmatter**. This design choice ensures:
-
-- **Maximum token efficiency** — no binary encoding, no base64, no wasted tokens
-- **Easy version control** — skills are diffable, mergeable, and reviewable in pull requests
-- **Direct readability** — both humans and AI agents can read and understand skill files without parsing
-- **Portable** — skills work across all platforms without compilation or platform-specific handling
+All skills are plain markdown with YAML frontmatter:
+- **Maximum token efficiency** — no binary encoding
+- **Easy version control** — diffable and reviewable
+- **Direct readability** — both humans and AI can read skill files

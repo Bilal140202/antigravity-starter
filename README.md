@@ -1,17 +1,22 @@
 # antigravity-starter
 
-> **One-command Antigravity workspace with graph-first AI**
+> **One-command graph-first workspace bootstrapper for Claude Code**
 >
 > Created by [Bilal Ansari](https://ansaribilal.com)
 
-Eliminate manual setup. Run one command and get a graph-first, rules-enforced development environment for Google Antigravity IDE. No more telling the AI to "install tools, add skills, set rules" every time — it all just works.
+Run one command and get a graph-first, rules-enforced development environment powered by [graphify](https://github.com/safishamsi/graphify) — a Claude Code skill that turns any codebase into a queryable knowledge graph. No more reading files one-by-one to understand structure. The graph knows.
 
-The system enforces **Workspace Action Proof** — two hard requirements that apply to every task, in every project, forever:
+## What This Actually Does
 
-1. **Graph First** — the AI must query the knowledge graph before reading any raw files
-2. **Agent Selection** — the AI must choose the correct specialised agent based on context
+Graphify is a **Claude Code skill** that reads your code, docs, and papers, builds a knowledge graph using tree-sitter AST extraction (13 languages) and Claude for semantic analysis, then lets you query it with `/graphify query`. It runs **100% locally** — no server, no authentication, no API keys.
 
----
+This starter kit automates the entire setup:
+
+1. Installs `graphifyy` (the Python package — note double-y on pip, single-y on CLI)
+2. Registers the Claude Code skill via `graphify install`
+3. Installs a post-commit git hook for automatic graph rebuilds
+4. Sets up project-level `CLAUDE.md` with graph-first rules
+5. Installs custom helper skills (e.g., `/wrapup` for session summaries)
 
 ## Quick Start
 
@@ -40,113 +45,90 @@ cd antigravity-starter
 bash install.sh
 ```
 
----
+## Prerequisites
 
-## What It Installs
+| Requirement | Why |
+|-------------|-----|
+| **Python 3.10+** | graphifyy uses `match/case` and modern syntax |
+| **Claude Code** | The `/graphify` skill command runs inside Claude Code |
+| **pip or uv** | For installing the `graphifyy` package |
 
-| Component | Description | Details |
-|-----------|-------------|---------|
-| **graphifyy** | Graph-first code intelligence tool | Installed via `uv tool install graphifyy` (note the double-y in the package name) |
-| **RULES.md** | Shared rules enforcing Workspace Action Proof protocol | Copied to `~/.config/agent-rules-sync/RULES.md` for global enforcement |
-| **Skills** | Modular AI capabilities in plain markdown | `/notebooklm` (persistent memory), `/wrapup` (session summary) |
-| **Graph hooks** | Automatic graph maintenance hooks | Installed via `graphify hook install` |
-| **Knowledge graph** | Initial graph build of your workspace | Created via `graphify . --no-viz` — captures code structure and dependencies |
+> **No authentication needed.** Graphify runs entirely locally. No login, no OAuth, no API keys.
 
----
+## What Gets Installed
 
-## How It Works
+| Component | Source | Destination |
+|-----------|--------|-------------|
+| **graphifyy** | PyPI (`pip install graphifyy`) | Global Python tool |
+| **Claude Code skill** | `graphify install` | `~/.claude/skills/graphify/SKILL.md` |
+| **Skill registration** | `graphify install` | `~/.claude/CLAUDE.md` |
+| **Post-commit hook** | `graphify hook install` | `.git/hooks/post-commit` |
+| **Project rules** | This repo's `CLAUDE.md` | `./CLAUDE.md` in your project |
+| **Custom skills** | This repo's `skills/` | `./.claude/skills/` |
 
-The install script performs eight sequential steps, each with error handling and idempotent behaviour:
+## After Installation
 
-| Step | Action | What it does |
-|------|--------|-------------|
-| 1 | Check Python 3.10+ | Verifies Python is installed and meets the minimum version requirement |
-| 2 | Install uv | Installs [Astral uv](https://docs.astral.sh/uv/) package manager via `winget` (Windows) or `curl` (macOS/Linux) |
-| 3 | Install graphifyy | Runs `uv tool install graphifyy --upgrade` to get the graph-first CLI |
-| 4 | Antigravity setup | Runs `graphify antigravity install` to configure IDE extensions |
-| 5 | Copy rules | Copies `RULES.md` to `~/.config/agent-rules-sync/RULES.md` for global enforcement |
-| 6 | Install skills | Copies all `.md` files from `skills/` to `.agents/skills/` in the workspace |
-| 7 | Install hooks | Runs `graphify hook install` for automatic graph maintenance |
-| 8 | Build graph | Runs `graphify . --no-viz` to generate the initial knowledge graph |
+Open Claude Code in your project directory and run:
 
-### Workspace Action Proof Protocol
-
-After installation, every AI interaction in the workspace follows two non-negotiable rules defined in `RULES.md`:
-
-**Requirement 1 — Graph First:**
-1. Check if `graphify-out/graph.json` exists and is less than 1 hour old
-2. If missing or stale, run `graphify . --update`
-3. Run `graphify query "<user's exact request>"` to get codebase context
-4. NEVER use Read, Glob, or Grep tools before completing step 3
-
-**Requirement 2 — Agent Selection:**
-After receiving graph results, route to the correct specialised agent:
-- Architecture, design, or planning requests → `@architect` agent
-- Code changes, implementation, or building → `@builder` agent
-- Testing, debugging, or verification → `@tester` agent
-- Documentation or summaries → `@documenter` agent
-
-These rules are enforced by `RULES.md` and apply to **every task, in every project, forever**.
-
----
-
-## Manual Steps Required
-
-> **Important: First run opens a browser for Google login — sign in once.**
-
-The initial `graphify auth login` requires interactive Google OAuth 2.0 authentication. This step **cannot be automated** for security reasons. After signing in once, your credentials are cached and subsequent sessions work without any prompts.
-
-```bash
-# Authenticate — opens a browser window for Google login
-graphify auth login
-
-# Verify that authentication succeeded
-graphify auth status
+```
+/graphify . --no-viz
 ```
 
----
+This builds the initial knowledge graph. The `--no-viz` flag skips the HTML visualisation (faster). After that:
 
-## How to Verify
-
-After installation, run these commands to confirm everything is working correctly:
-
-```bash
-# Check graphify is installed and accessible
-graphify --version
-
-# Query the knowledge graph to test the full pipeline
-graphify query "test"
-
-# Verify shared rules are in place
-cat ~/.config/agent-rules-sync/RULES.md          # macOS / Linux
-type %USERPROFILE%\.config\agent-rules-sync\RULES.md   # Windows
-
-# Verify skills were installed
-ls .agents/skills/      # macOS / Linux
-dir .agents\skills\     # Windows
+```
+/graphify query "test"        # Query the codebase
+/graphify query "how does auth work?"   # Get context from the graph
+/graphify path "UserModel" "Database"   # Trace dependencies
+/graphify explain "main"               # Understand a specific node
 ```
 
-Expected output: `graphify --version` should print a version number, `graphify query "test"` should return a response about the workspace, and the rules and skills directories should contain the installed files.
+> **Important**: `/graphify .` and `/graphify query` are **Claude Code skill commands**, not terminal CLI commands. They only work inside Claude Code after the skill is registered. The CLI only supports `graphify install`, `graphify hook install`, and `graphify benchmark`.
 
----
+## Graph-First Rules
 
-## Available Skills
+After installation, your project's `CLAUDE.md` contains rules that tell Claude to:
 
-After installation, these skills are available as slash commands in the Antigravity IDE:
+1. **Check the graph first** — consult `graphify-out/GRAPH_REPORT.md` before reading raw files
+2. **Query, don't read** — use `/graphify query` instead of opening multiple files
+3. **Keep the graph current** — run AST rebuild after code changes (or rely on the git hook)
 
-| Command | Description | Details |
-|---------|-------------|---------|
-| `/notebooklm` | Connect to Google NotebookLM for persistent AI memory across sessions | Stores session summaries, architectural decisions, and project knowledge |
-| `/wrapup` | End-of-session summary and memory sync | Generates structured markdown, pushes to NotebookLM, saves local backups |
-| `/graphify query` | Query the codebase knowledge graph | Built-in graphify command — always available after installation |
+See [`RULES.md`](./RULES.md) for the full reference documentation.
 
-See [`skills/README.md`](./skills/README.md) for comprehensive documentation of each skill, including prerequisites, commands, usage patterns, and troubleshooting.
+## Output Files
 
----
+After running `/graphify .`, these files appear in `graphify-out/`:
+
+| File | Purpose |
+|------|---------|
+| `graph.json` | Persistent graph data — query without re-reading files |
+| `graph.html` | Interactive vis.js visualisation (click nodes, search, filter) |
+| `GRAPH_REPORT.md` | Audit report: god nodes, surprising connections, communities |
+| `obsidian/` | Open as an Obsidian vault with wikilinks and Canvas layout |
+| `wiki/index.md` | Agent-crawlable wiki (with `--wiki` flag) |
+| `cache/` | SHA256 cache — only changed files are re-processed |
+| `memory/` | Q&A results from previous queries (fed back on `--update`) |
+
+## How the Post-Commit Hook Works
+
+The git hook installed by `graphify hook install` runs automatically on every commit:
+
+1. Detects changed files via `git diff`
+2. Filters to code files only (`.py`, `.ts`, `.js`, `.go`, `.rs`, `.java`, `.cpp`, `.c`, `.rb`, `.kt`, `.cs`, `.scala`, `.php`)
+3. Runs a full AST rebuild using tree-sitter — **no LLM needed, zero cost**
+4. If rebuild fails, prints an error but never blocks the commit
+
+## Custom Skills
+
+| Command | Purpose |
+|---------|---------|
+| `/wrapup` | End-of-session summary saved to `.claude/memory/` |
+
+See [`skills/README.md`](./skills/README.md) for documentation and how to create your own skills.
 
 ## How to Update
 
-Re-run the install script at any time. The scripts are **idempotent** — running them multiple times is safe. Existing tools are upgraded to the latest version, rules are overwritten with the current `RULES.md`, and skills are re-copied. No user data is destroyed on re-run.
+Re-run the install script. It is **idempotent** — safe to run multiple times. Existing tools are upgraded, rules are merged, and skills are re-copied.
 
 ```powershell
 # Windows
@@ -156,76 +138,64 @@ Re-run the install script at any time. The scripts are **idempotent** — runnin
 bash install.sh
 ```
 
----
-
 ## Troubleshooting
 
 ### `graphify: command not found`
 
-**Cause**: uv binaries are not on your system PATH after installation.
+**Cause**: The `graphifyy` package binaries are not on PATH.
 
 **Fix**:
-- **Windows**: Close and reopen PowerShell. If that does not work, add `%LOCALAPPDATA%\Programs\uv` to your system PATH manually via System Properties > Environment Variables.
-- **macOS/Linux**: Run `export PATH="$HOME/.local/bin:$PATH"` in your terminal, or add it to your `~/.bashrc` / `~/.zshrc` for persistence.
+- **Windows**: Close and reopen PowerShell. Or add `%LOCALAPPDATA%\Programs\uv` to PATH.
+- **macOS/Linux**: Run `export PATH="$HOME/.local/bin:$PATH"` or restart terminal.
 
-### `Python too old` or `Python 3.10+ required`
+### `Python too old`
 
-**Cause**: Your system Python version is older than 3.10, which is the minimum required by graphifyy.
+**Cause**: graphifyy requires Python 3.10+.
 
-**Fix**: Install Python 3.10 or newer:
-- **Windows**: Download from [python.org](https://www.python.org/downloads/) — check "Add to PATH" during installation
-- **macOS**: `brew install python@3.12`
-- **Ubuntu/Debian**: `sudo apt install python3.12 python3.12-venv`
+**Fix**: Install Python 3.10+ from [python.org](https://www.python.org/downloads/) or via your package manager.
 
-Ensure the new version appears first on your PATH.
+### `/graphify` command not recognised in Claude Code
 
-### `auth failed` or browser doesn't open
+**Cause**: The skill wasn't registered properly.
 
-**Cause**: Google OAuth 2.0 requires interactive authentication — this is a security feature and cannot be bypassed.
+**Fix**: Run `graphify install` manually. Verify `~/.claude/skills/graphify/SKILL.md` exists. Restart Claude Code.
 
-**Fix**:
-1. Run `graphify auth logout` to clear any stale credentials
-2. Run `graphify auth login` in your terminal
-3. A browser window should open — sign into your Google account with NotebookLM access
-4. If the browser does not open, copy the URL from the terminal output and paste it into your browser manually
+### Git hook not triggering
 
-### `RULES.md not found` after install
+**Cause**: You may not be in a git repository, or the hook was installed in a different repo.
 
-**Cause**: The install script could not locate `RULES.md` next to itself in the repository root.
+**Fix**: Run `git init` if needed, then `graphify hook install` inside the repo. Check with `graphify hook status`.
 
-**Fix**: Ensure you downloaded or cloned the **entire repository** (not just the install script alone). Clone the repo or download the ZIP archive, then run the install script from the repository root directory.
+### CLAUDE.md conflicts
 
-### Skills don't appear in IDE
+**Cause**: Your project already has a CLAUDE.md without graphify rules.
 
-**Cause**: The `.agents/skills/` directory was not created or populated during installation.
-
-**Fix**:
-1. Verify the `skills/` directory exists next to the install script in the repository root
-2. Re-run the install script (`.\install.ps1` or `bash install.sh`)
-3. Confirm that `.agents/skills/` contains `.md` files after installation
-
----
+**Fix**: The install script prepends graphify rules without overwriting existing content. Review `CLAUDE.md` and adjust as needed.
 
 ## Repository Structure
 
 ```
 antigravity-starter/
-├── install.ps1                          # Windows PowerShell installer (primary)
-├── install.sh                           # macOS / Linux bash installer
-├── RULES.md                             # Shared rules — Workspace Action Proof protocol
+├── install.ps1                      # Windows PowerShell installer
+├── install.sh                       # macOS / Linux bash installer
+├── CLAUDE.md                        # Project-level graph-first rules
+├── RULES.md                         # Detailed protocol reference
 ├── skills/
-│   ├── notebooklm.md                   # NotebookLM integration skill (persistent AI memory)
-│   ├── wrapup.md                        # Session wrapup skill (summary and memory sync)
-│   └── README.md                        # Skills documentation and usage guide
+│   ├── wrapup/
+│   │   └── SKILL.md                # Session summary skill
+│   └── README.md                    # Skills documentation
 ├── .github/
 │   └── workflows/
-│       └── test-install.yml             # CI: automated install testing on Ubuntu
-├── README.md                            # This file — project documentation
-├── LICENSE                              # MIT License
-└── .gitignore                           # Git ignore rules
+│       └── test-install.yml         # CI: test install on Ubuntu
+├── README.md                        # This file
+├── LICENSE                          # MIT License
+└── .gitignore                       # Git ignore rules
 ```
 
----
+## Credits
+
+- [graphify](https://github.com/safishamsi/graphify) by safishamsi — the knowledge graph engine
+- [Claude Code](https://docs.anthropic.com/en/docs/claude-code) by Anthropic — the AI coding assistant
 
 ## Author
 
@@ -233,4 +203,4 @@ antigravity-starter/
 
 ## License
 
-[MIT](./LICENSE) — free for personal and commercial use.
+[MIT](./LICENSE)

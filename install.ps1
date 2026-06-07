@@ -1,27 +1,39 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-    Antigravity Starter — One-command workspace bootstrapper for Google Antigravity IDE.
+    Antigravity Starter — One-command workspace bootstrapper for graph-first AI development.
 .DESCRIPTION
     Automates the full setup of a graph-first, rules-enforced AI development environment.
-    Installs graphifyy (Python knowledge-graph tool), shared rules, IDE skills, and
-    builds the initial codebase knowledge graph — all in a single command.
+    Installs graphifyy (Claude Code knowledge-graph skill), registers it as a Claude Code skill,
+    installs post-commit git hooks, sets up project-level CLAUDE.md rules, and installs
+    custom helper skills — all in a single command.
 
     This script is idempotent: running it multiple times is safe and will upgrade
     existing installations without destroying user data.
+
+    PREREQUISITES:
+      - Python 3.10 or newer
+      - Claude Code installed (for using /graphify commands)
 .NOTES
     Author:     Bilal Ansari
     Website:    https://ansaribilal.com
     Repository: https://github.com/Bilal140202/antigravity-starter
     License:    MIT
-.PARAMETER Force
-    Skip confirmation prompts (reserved for future interactive use).
-.EXAMPLE
-    # Run locally from the cloned repository
-    .\install.ps1
 
+    WHAT THIS ACTUALLY INSTALLS:
+      1. graphifyy (PyPI package, double-y) — provides the `graphify` CLI command
+      2. Claude Code skill — via `graphify install` (copies skill to ~/.claude/skills/)
+      3. Post-commit git hook — via `graphify hook install` (auto-rebuilds graph on commit)
+      4. Project CLAUDE.md — graph-first rules for Claude Code (copied to current directory)
+      5. Custom skills — helper skills in .claude/skills/ (project-level)
+
+    WHAT THIS DOES NOT DO:
+      - Does NOT require any authentication, login, or API keys
+      - Does NOT build the initial graph (that must be done inside Claude Code via /graphify)
+      - Does NOT install Claude Code itself (install that separately first)
 .EXAMPLE
-    # Run remotely via PowerShell one-liner
+    .\install.ps1
+.EXAMPLE
     iwr https://raw.githubusercontent.com/Bilal140202/antigravity-starter/main/install.ps1 | iex
 #>
 
@@ -59,12 +71,18 @@ function Assert-Command($name) {
     }
 }
 
+# Determine the directory where this script lives (for finding companion files)
+$scriptDir = $PSScriptRoot
+if (-not $scriptDir) {
+    $scriptDir = (Get-Location).Path
+}
+
 # ----------------------------------------------------------------
 # Step 1: Check Python 3.10+
-# graphifyy requires Python 3.10 or newer for match statements and
-# other modern syntax features.
+# graphifyy requires Python 3.10+ for structural pattern matching
+# (match/case statements) and other modern language features.
 # ----------------------------------------------------------------
-Write-Step "Checking Python 3.10+ ..."
+Write-Step "Step 1/7: Checking Python 3.10+ ..."
 if (-not (Assert-Command "python")) {
     Write-Fail "Python is not installed or not on PATH."
     Write-Host "  Install Python 3.10+ from https://www.python.org/downloads/"
@@ -87,7 +105,7 @@ try {
         exit 1
     }
 
-    Write-Success "Python version meets requirements."
+    Write-Success "Python $pythonVersion meets requirements."
 }
 catch {
     Write-Fail "Could not determine Python version."
@@ -96,23 +114,26 @@ catch {
 }
 
 # ----------------------------------------------------------------
-# Step 2: Install uv via winget
-# uv is the fast Python package manager from Astral (creators of Ruff).
-# It manages Python tool installations, virtual environments, and
-# dependency resolution — used here to install graphifyy.
+# Step 2: Install uv (Astral's Python package manager)
+# uv is used to install graphifyy as a global tool. It is faster and
+# more reliable than pip for tool installations. Falls back to pip
+# if uv installation fails.
 # ----------------------------------------------------------------
-Write-Step "Checking uv package manager ..."
+Write-Step "Step 2/7: Checking uv package manager ..."
+$usePipDirectly = $false
+
 if (Assert-Command "uv") {
     $uvVersion = uv --version 2>&1
     Write-Success "uv already installed ($uvVersion)."
 }
 else {
+    # Try winget first (Windows package manager)
     if (Assert-Command "winget") {
         Write-Host "  Installing uv via winget ..."
         try {
             winget install astral-sh.uv --accept-package-agreements --accept-source-agreements 2>&1 | Out-Null
 
-            # Refresh PATH for current session — uv installs to common locations
+            # Refresh PATH for current session
             $uvPaths = @(
                 "$env:LOCALAPPDATA\Programs\uv",
                 "$env:USERPROFILE\.local\bin",
@@ -124,157 +145,174 @@ else {
                 }
             }
 
+            # Second attempt after PATH refresh
             if (-not (Assert-Command "uv")) {
-                Write-Warn "uv installed but not yet on PATH. You may need to restart your terminal."
-                Write-Host "  Attempting to use common path ..."
+                Write-Warn "uv installed but not on PATH. Trying direct path ..."
                 $uvExe = Get-ChildItem -Path "$env:LOCALAPPDATA\Programs\uv" -Filter "uv.exe" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
                 if ($uvExe) {
                     $env:PATH = "$($uvExe.DirectoryName);$env:PATH"
                 }
             }
 
-            if (Assert-Command "uv") {
-                Write-Success "uv installed successfully."
+            if (Assert-Command "uv")) {
+                Write-Success "uv installed via winget."
             }
             else {
-                Write-Fail "uv installed but not found on PATH. Restart your terminal and run this script again."
-                exit 1
+                Write-Warn "winget install succeeded but uv not on PATH. Falling back to pip."
+                $usePipDirectly = $true
             }
         }
         catch {
-            Write-Fail "Failed to install uv via winget."
-            Write-Host "  Error: $_"
-            Write-Host "  Install uv manually: https://docs.astral.sh/uv/getting-started/installation/"
-            exit 1
+            Write-Warn "winget install failed. Falling back to pip."
+            $usePipDirectly = $true
         }
     }
     else {
-        Write-Fail "winget is not available. Install uv manually:"
-        Write-Host "  powershell -ExecutionPolicy ByPass -c `"irm https://astral.sh/uv/install.ps1 | iex`""
-        exit 1
+        Write-Warn "winget not available. Falling back to pip."
+        $usePipDirectly = $true
     }
 }
 
 # ----------------------------------------------------------------
-# Step 3: Install graphifyy via uv
-# graphifyy (double-y) is the Python package name on PyPI. It provides
-# the `graphify` CLI command for codebase knowledge graph generation,
-# querying, and AI-assisted development workflow hooks.
+# Step 3: Install graphifyy (the PyPI package — note double-y)
+# graphifyy is the PyPI package name (the 'graphify' name is being
+# reclaimed). After installation, the CLI command is `graphify` (single-y).
+# graphifyy requires Python 3.10+ and depends on networkx, graspologic,
+# tree-sitter, and 13 language-specific tree-sitter grammars.
 # ----------------------------------------------------------------
-Write-Step "Installing graphifyy (graph-first code intelligence) ..."
+Write-Step "Step 3/7: Installing graphifyy (knowledge graph tool) ..."
 try {
-    uv tool install graphifyy --upgrade 2>&1 | ForEach-Object { Write-Host "  $_" }
+    if ($usePipDirectly) {
+        python -m pip install --user graphifyy --upgrade 2>&1 | ForEach-Object { Write-Host "  $_" }
+    }
+    else {
+        uv tool install graphifyy --upgrade 2>&1 | ForEach-Object { Write-Host "  $_" }
+    }
     Write-Success "graphifyy installed."
 }
 catch {
     Write-Fail "Failed to install graphifyy."
     Write-Host "  Error: $_"
-    Write-Host "  Try manually: uv tool install graphifyy"
+    Write-Host "  Try manually: pip install graphifyy"
     exit 1
 }
 
 # ----------------------------------------------------------------
-# Step 4: Run graphify antigravity install
-# Sets up the Antigravity IDE extension within graphify, configuring
-# the workspace for graph-first AI interactions.
+# Step 4: Register graphify as a Claude Code skill
+# `graphify install` copies the skill definition to ~/.claude/skills/graphify/SKILL.md
+# and registers it in ~/.claude/CLAUDE.md so Claude Code discovers it at startup.
+# This is the ONLY install command graphify provides — there is no 'antigravity install'.
 # ----------------------------------------------------------------
-Write-Step "Running graphify antigravity install ..."
+Write-Step "Step 4/7: Registering graphify as Claude Code skill ..."
 try {
-    graphify antigravity install 2>&1 | ForEach-Object { Write-Host "  $_" }
-    Write-Success "Antigravity extension installed."
+    graphify install 2>&1 | ForEach-Object { Write-Host "  $_" }
+    Write-Success "Claude Code skill registered at ~/.claude/skills/graphify/SKILL.md"
 }
 catch {
-    Write-Warn "graphify antigravity install failed (may not be required yet): $_"
+    Write-Warn "graphify install failed: $_"
+    Write-Host "  You can run 'graphify install' manually later."
 }
 
 # ----------------------------------------------------------------
-# Step 5: Copy RULES.md to agent-rules-sync directory
-# RULES.md enforces the "Workspace Action Proof" protocol — two hard
-# requirements that every AI interaction must follow:
-#   1. Graph First — query the knowledge graph before reading files
-#   2. Agent Selection — choose the correct specialised agent based on context
-# This file is synced to the standard config location so it applies globally.
+# Step 5: Install post-commit git hook
+# `graphify hook install` adds a post-commit hook to .git/hooks/post-commit
+# that automatically rebuilds the knowledge graph (AST-only, no LLM needed)
+# when code files change. Safe to run multiple times — checks for duplicates.
 # ----------------------------------------------------------------
-Write-Step "Installing shared rules ..."
-$rulesDestDir = Join-Path $HOME ".config" "agent-rules-sync"
-$rulesDest = Join-Path $rulesDestDir "RULES.md"
-
-if (-not (Test-Path $rulesDestDir)) {
-    New-Item -ItemType Directory -Path $rulesDestDir -Force | Out-Null
-}
-
-# Locate RULES.md next to this script
-$scriptDir = $PSScriptRoot
-if (-not $scriptDir) {
-    $scriptDir = (Get-Location).Path
-}
-$rulesSource = Join-Path $scriptDir "RULES.md"
-
-if (Test-Path $rulesSource) {
-    Copy-Item -Path $rulesSource -Destination $rulesDest -Force
-    Write-Success "RULES.md copied to $rulesDest"
-}
-else {
-    Write-Warn "RULES.md not found at $rulesSource. Skipping rules installation."
-}
-
-# ----------------------------------------------------------------
-# Step 6: Copy skills to .agents/skills/
-# Skills are markdown files with YAML frontmatter that extend the AI
-# assistant with specialised workflows. They are placed in .agents/skills/
-# where the Antigravity IDE auto-detects them.
-# Available skills: notebooklm (persistent memory), wrapup (session summary)
-# ----------------------------------------------------------------
-Write-Step "Installing skills ..."
-$skillsSourceDir = Join-Path $scriptDir "skills"
-$skillsDestDir = Join-Path (Get-Location).Path ".agents" "skills"
-
-if (Test-Path $skillsSourceDir) {
-    if (-not (Test-Path $skillsDestDir)) {
-        New-Item -ItemType Directory -Path $skillsDestDir -Force | Out-Null
-    }
-
-    $skillFiles = Get-ChildItem -Path $skillsSourceDir -Filter "*.md" -File
-    foreach ($skill in $skillFiles) {
-        Copy-Item -Path $skill.FullName -Destination $skillsDestDir -Force
-        Write-Success "Installed skill: $($skill.Name)"
-    }
-
-    $skillCount = @($skillFiles).Count
-    Write-Host "  $skillCount skill(s) installed to .agents/skills/"
-}
-else {
-    Write-Warn "skills/ directory not found. Skipping skill installation."
-}
-
-# ----------------------------------------------------------------
-# Step 7: Install graphify hooks
-# Hooks integrate graphify into the AI agent's workflow, ensuring
-# automatic graph maintenance and query capabilities.
-# ----------------------------------------------------------------
-Write-Step "Installing graphify hooks ..."
+Write-Step "Step 5/7: Installing post-commit git hook ..."
 try {
     graphify hook install 2>&1 | ForEach-Object { Write-Host "  $_" }
-    Write-Success "Graphify hooks installed."
+    Write-Success "Post-commit hook installed (auto-rebuilds graph on code changes)."
 }
 catch {
     Write-Warn "graphify hook install failed (non-critical): $_"
+    Write-Host "  This usually means you're not inside a git repository."
+    Write-Host "  Run 'git init' first, then 'graphify hook install' manually."
 }
 
 # ----------------------------------------------------------------
-# Step 8: Initial graph build (no visualisation)
-# Builds the knowledge graph of the current workspace without generating
-# HTML visualisation files. The graph captures code structure, dependencies,
-# and relationships for AI-powered querying via `graphify query`.
+# Step 6: Set up project-level graph-first rules (CLAUDE.md)
+# CLAUDE.md is Claude Code's project-level instruction file. It is loaded
+# at the start of every session and tells Claude to query the knowledge
+# graph before reading raw files — enforcing the "graph-first" protocol.
 # ----------------------------------------------------------------
-Write-Step "Building initial knowledge graph (no visualisation) ..."
-try {
-    graphify . --no-viz 2>&1 | ForEach-Object { Write-Host "  $_" }
-    Write-Success "Initial graph built."
+Write-Step "Step 6/7: Setting up graph-first rules (CLAUDE.md) ..."
+$claudeMdSource = Join-Path $scriptDir "CLAUDE.md"
+$claudeMdDest = Join-Path (Get-Location).Path "CLAUDE.md"
+
+if (Test-Path $claudeMdSource) {
+    if (Test-Path $claudeMdDest) {
+        $existingContent = Get-Content $claudeMdDest -Raw
+        if ($existingContent -match "graphify") {
+            Write-Success "CLAUDE.md already exists with graphify rules (no change)."
+        }
+        else {
+            # Prepend our rules to existing CLAUDE.md
+            $newContent = (Get-Content $claudeMdSource -Raw) + "`n`n" + $existingContent
+            Set-Content -Path $claudeMdDest -Value $newContent
+            Write-Success "Graph-first rules prepended to existing CLAUDE.md."
+        }
+    }
+    else {
+        Copy-Item -Path $claudeMdSource -Destination $claudeMdDest
+        Write-Success "CLAUDE.md created with graph-first rules."
+    }
 }
-catch {
-    Write-Warn "Initial graph build failed — this is normal for empty projects."
-    Write-Host "  Run 'graphify .' manually once your code is in place."
+else {
+    Write-Warn "CLAUDE.md not found in script directory. Skipping rules setup."
+}
+
+# ----------------------------------------------------------------
+# Step 7: Install custom skills to .claude/skills/ (project-level)
+# Claude Code discovers skills in .claude/skills/<name>/SKILL.md at startup.
+# Each skill's directory name becomes its slash command (e.g., /wrapup).
+# ----------------------------------------------------------------
+Write-Step "Step 7/7: Installing custom skills ..."
+$skillsSourceDir = Join-Path $scriptDir "skills"
+
+if (Test-Path $skillsSourceDir) {
+    # Copy skill directories that contain a SKILL.md file
+    $skillDirs = Get-ChildItem -Path $skillsSourceDir -Directory
+    $skillsDestRoot = Join-Path (Get-Location).Path ".claude" "skills"
+    $skillCount = 0
+
+    foreach ($skillDir in $skillDirs) {
+        $skillMd = Join-Path $skillDir.FullName "SKILL.md"
+        if (Test-Path $skillMd) {
+            $destDir = Join-Path $skillsDestRoot $skillDir.Name
+            if (-not (Test-Path $destDir)) {
+                New-Item -ItemType Directory -Path $destDir -Force | Out-Null
+            }
+            Copy-Item -Path $skillMd -Destination (Join-Path $destDir "SKILL.md") -Force
+            Write-Success "Installed skill: /$($skillDir.Name)"
+            $skillCount++
+        }
+    }
+
+    # Also copy any top-level .md files as legacy commands (.claude/commands/)
+    $skillFiles = Get-ChildItem -Path $skillsSourceDir -Filter "*.md" -File
+    $commandsDestRoot = Join-Path (Get-Location).Path ".claude" "commands"
+    foreach ($skillFile in $skillFiles) {
+        if (-not (Test-Path $commandsDestRoot)) {
+            New-Item -ItemType Directory -Path $commandsDestRoot -Force | Out-Null
+        }
+        $commandName = $skillFile.BaseName
+        # Skip README.md — not a command
+        if ($commandName -eq "README") { continue }
+        Copy-Item -Path $skillFile.FullName -Destination (Join-Path $commandsDestRoot "$commandName.md") -Force
+        Write-Success "Installed command: /$commandName"
+        $skillCount++
+    }
+
+    if ($skillCount -eq 0) {
+        Write-Warn "No skills or commands found to install."
+    }
+    else {
+        Write-Host "  $skillCount skill(s)/command(s) installed to .claude/"
+    }
+}
+else {
+    Write-Warn "skills/ directory not found. Skipping skill installation."
 }
 
 # ----------------------------------------------------------------
@@ -285,19 +323,22 @@ Write-Host -ForegroundColor Green "=============================================
 Write-Host -ForegroundColor Green "  Antigravity workspace is ready!"
 Write-Host -ForegroundColor Green "============================================="
 Write-Host ""
-Write-Host "  Created by Bilal Ansari — https://ansaribilal.com"
+Write-Host "  Created by Bilal Ansari - https://ansaribilal.com"
 Write-Host ""
-Write-Host "  Next steps:"
+Write-Host "  Next steps (inside Claude Code):"
 Write-Host ""
-Write-Host "  1. Run 'graphify .'          to rebuild the knowledge graph"
-Write-Host "  2. Type  '/graphify query'   to query your codebase"
-Write-Host "  3. Type  '/notebooklm'       to open NotebookLM skill"
-Write-Host "  4. Type  '/wrapup'           to save session summary"
+Write-Host "  1. Open Claude Code in this directory"
+Write-Host "  2. Type  /graphify . --no-viz     to build the initial knowledge graph"
+Write-Host "  3. Type  /graphify query `"test`"   to query your codebase"
+Write-Host "  4. Type  /wrapup                   to save a session summary"
 Write-Host ""
-Write-Host "  NOTE: First run may open a browser for Google login — sign in once."
+Write-Host "  Note: The initial graph build runs INSIDE Claude Code via the"
+Write-Host "  /graphify skill command. It is NOT a CLI command."
 Write-Host ""
-Write-Host "  Rules installed at: $rulesDest"
-Write-Host "  Skills installed at: $skillsDestDir"
+Write-Host "  Files created:"
+Write-Host "    - CLAUDE.md              (graph-first rules for this project)"
+Write-Host "    - .claude/skills/        (custom skills)"
+Write-Host "    - .git/hooks/post-commit (auto-rebuild on code changes)"
 Write-Host ""
 Write-Host -ForegroundColor DarkGray "  Repository: https://github.com/Bilal140202/antigravity-starter"
 Write-Host ""
