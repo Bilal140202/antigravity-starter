@@ -16,7 +16,7 @@ This starter kit automates the entire setup:
 2. Registers the Claude Code skill via `graphify install`
 3. Installs a post-commit git hook for automatic graph rebuilds
 4. Sets up project-level `CLAUDE.md` with graph-first rules
-5. Installs 20 custom skills (e.g., `/wrapup`, `/researcher`, `/security`, `/build-premium-website`, and more)
+5. Installs 20 PRO skills (v2.0 with graphify-first protocol, decision trees, autonomy matrices, failure recovery, verification checklists) (e.g., `/wrapup`, `/researcher`, `/security`, `/build-premium-website`, and more)
 
 ## Quick Start
 
@@ -120,30 +120,30 @@ The git hook installed by `graphify hook install` runs automatically on every co
 
 ## Custom Skills
 
-20 custom skills are installed alongside graphify. Each skill is a directory with a `SKILL.md` and optional reference files.
+20 PRO skills (v2.0) installed alongside graphify. Each skill has graphify-first protocol, decision trees, autonomy matrices, failure modes, and verification checklists.
 
 | Command | Purpose |
 |---------|---------|
-| `/albert-dm` | Reply to DMs in Albert's voice |
-| `/build-premium-website` | Build animated marketing sites (React + Vite + Tailwind + GSAP) |
-| `/composio` | AI agent integrations with third-party apps |
-| `/cost-reducer` | Cloud & infrastructure cost optimization |
-| `/create-skill` | Create new Claude Code custom skills |
-| `/customer-support` | Customer support responses & workflows |
-| `/frontend-design` | Production-grade frontend interfaces |
-| `/instantly-campaign` | Cold email campaign creator (Instantly) |
-| `/know-me` | Cross-session memory (auto-activates) |
-| `/n8n` | n8n workflow automations & custom nodes |
-| `/new-client-system` | Scaffold full-stack client projects (Next.js + Trigger.dev) |
-| `/researcher` | Deep multi-source research & synthesis |
-| `/scalability` | Scalable system design & optimization |
-| `/security` | Application security (OWASP, web & desktop) |
-| `/self-healing` | Self-improvement: pattern recognition & skill creation |
-| `/setup-codex-precheck` | Install codex pre-edit review hook |
-| `/trigger-dev` | Trigger.dev background jobs & automations |
+| `/albert-dm-pro` | Reply to DMs in Albert's voice |
+| `/build-premium-website-pro` | Build animated marketing sites (React + Vite + Tailwind + GSAP) |
+| `/composio-pro` | AI agent integrations with third-party apps |
+| `/cost-reducer-pro` | Cloud & infrastructure cost optimization |
+| `/create-skill-pro` | Create new Claude Code custom skills |
+| `/customer-support-pro` | Customer support responses & workflows |
+| `/frontend-design-pro` | Production-grade frontend interfaces |
+| `/instantly-campaign-pro` | Cold email campaign creator (Instantly) |
+| `/know-me-pro` | Cross-session memory (auto-activates) |
+| `/n8n-pro` | n8n workflow automations & custom nodes |
+| `/new-client-system-pro` | Scaffold full-stack client projects (Next.js + Trigger.dev) |
+| `/researcher-pro` | Deep multi-source research & synthesis |
+| `/scalability-pro` | Scalable system design & optimization |
+| `/security-pro` | Application security (OWASP, web & desktop) |
+| `/self-healing-pro` | Self-improvement: pattern recognition & skill creation |
+| `/setup-codex-precheck-pro` | Install codex pre-edit review hook |
+| `/trigger-dev-pro` | Trigger.dev background jobs & automations |
 | `/upwork` | Upwork profile optimization |
-| `/upwork-proposal` | Upwork proposal writer |
-| `/wrapup` | End-of-session summary saved to `.claude/memory/` |
+| `/upwork-proposal-pro` | Upwork proposal writer |
+| `/wrapup-pro` | End-of-session summary saved to `.claude/memory/` |
 
 See [`skills/README.md`](./skills/README.md) for full documentation and how to create your own skills.
 
@@ -202,26 +202,26 @@ antigravity-starter/
 ├── CLAUDE.md                        # Project-level graph-first rules
 ├── RULES.md                         # Detailed protocol reference
 ├── skills/
-│   ├── albert-dm/                   # Albert DM voice skill
-│   ├── build-premium-website/       # Premium site builder (14 reference files)
-│   ├── composio/                    # Composio integrations
-│   ├── cost-reducer/                # Cost optimization
-│   ├── create-skill/                # Skill creator meta-tool
-│   ├── customer-support/            # Support workflows
-│   ├── frontend-design/             # Frontend design quality
-│   ├── instantly-campaign/         # Cold email campaigns
-│   ├── know-me/                     # Cross-session memory
-│   ├── n8n/                         # n8n workflow automation
-│   ├── new-client-system/           # Client scaffolder (69 template files)
-│   ├── researcher/                  # Deep research analyst
-│   ├── scalability/                 # System scalability
-│   ├── security/                    # Application security
-│   ├── self-healing/                # Self-improvement engine
-│   ├── setup-codex-precheck/        # Codex review hook
-│   ├── trigger-dev/                 # Trigger.dev background jobs
-│   ├── upwork/                      # Profile optimizer
-│   ├── upwork-proposal/             # Proposal writer
-│   ├── wrapup/                      # Session summary
+│   ├── albert-dm-pro/                   # Albert DM voice (PRO) skill
+│   ├── build-premium-website-pro/       # Premium site builder (PRO, 14 refs) builder (14 reference files)
+│   ├── composio-pro/                    # Composio integrations (PRO) integrations
+│   ├── cost-reducer-pro/                # Cost optimization (PRO) optimization
+│   ├── create-skill-pro/                # Skill creator meta-tool (PRO) meta-tool
+│   ├── customer-support-pro/            # Support workflows (PRO) workflows
+│   ├── frontend-design-pro/             # Frontend design (PRO) design quality
+│   ├── instantly-campaign-pro/         # Cold email campaigns (PRO) email campaigns
+│   ├── know-me-pro/                     # Cross-session memory (PRO)-session memory
+│   ├── n8n-pro/                         # n8n automation (PRO) workflow automation
+│   ├── new-client-system-pro/           # Client scaffolder (PRO, 69 templates) scaffolder (69 template files)
+│   ├── researcher-pro/                  # Deep research (PRO) research analyst
+│   ├── scalability-pro/                 # Scalability (PRO) scalability
+│   ├── security-pro/                    # Security (PRO) security
+│   ├── self-healing-pro/                # Self-improvement (PRO)-improvement engine
+│   ├── setup-codex-precheck-pro/        # Codex review hook (PRO) review hook
+│   ├── trigger-dev-pro/                 # Trigger.dev jobs (PRO).dev background jobs
+│   ├── upwork-pro/                      # Profile optimizer (PRO) optimizer
+│   ├── upwork-proposal-pro/             # Proposal writer (PRO) writer
+│   ├── wrapup-pro/                      # Session summary (PRO) summary
 │   └── README.md                    # Skills documentation
 ├── .github/
 │   └── workflows/

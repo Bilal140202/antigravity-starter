@@ -55,17 +55,17 @@ Or rely on the post-commit git hook (installed via `graphify hook install`) whic
 
 This project has 20 custom skills installed in `.claude/skills/`. Type `/` in Claude Code to see them all. Key skills:
 
-- `/researcher` — Deep multi-source research & synthesis
-- `/security` — Application security reviews (OWASP, web & desktop)
-- `/scalability` — Scalable system design
-- `/cost-reducer` — Cloud & infrastructure cost optimization
-- `/build-premium-website` — Animated marketing sites (React + Vite + Tailwind + GSAP)
-- `/new-client-system` — Scaffold full-stack client projects (Next.js + Trigger.dev)
-- `/n8n` — n8n workflow automations & custom nodes
-- `/composio` — AI agent integrations with third-party apps
-- `/know-me` — Cross-session memory (auto-activates)
-- `/self-healing` — Self-improvement: pattern recognition & skill creation
-- `/create-skill` — Create new Claude Code custom skills
-- `/wrapup` — End-of-session summary
+- `/researcher-pro` — Deep multi-source research & synthesis
+- `/security-pro` — Application security reviews (OWASP, web & desktop)
+- `/scalability-pro` — Scalable system design
+- `/cost-reducer-pro` — Cloud & infrastructure cost optimization
+- `/build-premium-website-pro` — Animated marketing sites (React + Vite + Tailwind + GSAP)
+- `/new-client-system-pro` — Scaffold full-stack client projects (Next.js + Trigger.dev)
+- `/n8n-pro` — n8n workflow automations & custom nodes
+- `/composio-pro` — AI agent integrations with third-party apps
+- `/know-me-pro` — Cross-session memory (auto-activates)
+- `/self-healing-pro` — Self-improvement: pattern recognition & skill creation
+- `/create-skill-pro` — Create new Claude Code custom skills
+- `/wrapup-pro` — End-of-session summary
 
 See `skills/README.md` for full documentation.

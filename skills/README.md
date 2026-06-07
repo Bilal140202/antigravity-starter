@@ -16,11 +16,11 @@ Skills live in specific directories and are auto-discovered:
 | Legacy commands | `.claude/commands/<name>.md` | This project only |
 
 The **directory name** becomes the slash command. For example:
-- `.claude/skills/wrapup/SKILL.md` → type `/wrapup` in Claude Code
+- `.claude/skills/wrapup/SKILL.md` → type `/wrapup-pro` in Claude Code
 
 ## Skills in This Project
 
-### `/graphify` — Knowledge Graph (installed by `graphify install`)
+### `/graphify-pro` — PRO: Knowledge Graph (installed by `graphify install`)
 
 This is the core graphify skill, installed globally to `~/.claude/skills/graphify/SKILL.md` by running `graphify install`. It is NOT in this repository — it comes from the `graphifyy` Python package.
 
@@ -38,7 +38,7 @@ This is the core graphify skill, installed globally to `~/.claude/skills/graphif
 
 ---
 
-### `/albert-dm` — Albert DM Voice
+### `/albert-dm-pro` — PRO: Albert DM Voice
 
 Reply to DMs and messages the way Albert would. Albert sells AI voice agents / automations to local service businesses (Go High Level, lead follow-up, bookings).
 
@@ -48,7 +48,7 @@ Reply to DMs and messages the way Albert would. Albert sells AI voice agents / a
 
 ---
 
-### `/build-premium-website` — Premium Website Builder
+### `/build-premium-website-pro` — PRO: Premium Website Builder
 
 Build a premium, animated marketing website (React + Vite + Tailwind + GSAP) for any industry. Adapts color, copy, services, and signature animation to the industry.
 
@@ -60,7 +60,7 @@ Build a premium, animated marketing website (React + Vite + Tailwind + GSAP) for
 
 ---
 
-### `/composio` — Composio Integrations
+### `/composio-pro` — PRO: Composio Integrations
 
 Build AI agent integrations with Composio (composio.dev). Connect AI agents to third-party apps (GitHub, Gmail, Slack, Notion, Salesforce, etc.), set up OAuth, create sessions, use tools natively or via MCP.
 
@@ -72,7 +72,7 @@ Build AI agent integrations with Composio (composio.dev). Connect AI agents to t
 
 ---
 
-### `/cost-reducer` — Cloud & Infrastructure Cost Optimizer
+### `/cost-reducer-pro` — PRO: Cloud & Infrastructure Cost Optimizer
 
 Reduce cloud, infrastructure, and operational costs while maintaining performance. Covers AWS/GCP/Vercel pricing, database optimization, serverless tuning, image pipelines, observability costs, and FinOps practices.
 
@@ -84,7 +84,7 @@ Reduce cloud, infrastructure, and operational costs while maintaining performanc
 
 ---
 
-### `/create-skill` — Skill Creator
+### `/create-skill-pro` — PRO: Skill Creator
 
 Create high-quality Claude Code custom skills and slash commands. Guides you through building a new skill with proper YAML frontmatter, structure, and documentation.
 
@@ -96,7 +96,7 @@ Create high-quality Claude Code custom skills and slash commands. Guides you thr
 
 ---
 
-### `/customer-support` — Customer Support Handler
+### `/customer-support-pro` — PRO: Customer Support Handler
 
 Handle customer support tasks professionally. Draft responses, triage tickets, write help articles, create macros/templates, review conversations for quality, and build support workflows.
 
@@ -108,7 +108,7 @@ Handle customer support tasks professionally. Draft responses, triage tickets, w
 
 ---
 
-### `/frontend-design` — Production-Grade Frontend Design
+### `/frontend-design-pro` — PRO: Production-Grade Frontend Design
 
 Create distinctive, production-grade frontend interfaces with high design quality. Generates creative, polished code that avoids generic AI aesthetics.
 
@@ -118,7 +118,7 @@ Create distinctive, production-grade frontend interfaces with high design qualit
 
 ---
 
-### `/instantly-campaign` — Cold Email Campaign Creator
+### `/instantly-campaign-pro` — PRO: Cold Email Campaign Creator
 
 Create a new Instantly cold-email campaign in the proven 5-email structure of the user's top-performing campaign (~16% reply rate). Structurally identical to the winner — only the angle, language, and specifics change.
 
@@ -130,7 +130,7 @@ Create a new Instantly cold-email campaign in the proven 5-email structure of th
 
 ---
 
-### `/know-me` — Cross-Session Memory
+### `/know-me-pro` — PRO: Cross-Session Memory
 
 Learn about the user across sessions. Observes preferences, habits, corrections, and context. Saves to memory topic files and references stored knowledge to personalize responses. Auto-activates.
 
@@ -142,7 +142,7 @@ Learn about the user across sessions. Observes preferences, habits, corrections,
 
 ---
 
-### `/n8n` — n8n Workflow Automation
+### `/n8n-pro` — PRO: n8n Workflow Automation
 
 Build n8n workflow automations, custom nodes, and integrations. Create workflows, build custom nodes, write expressions, configure triggers, handle errors, and set up webhook automations.
 
@@ -154,7 +154,7 @@ Build n8n workflow automations, custom nodes, and integrations. Create workflows
 
 ---
 
-### `/new-client-system` — Client Project Scaffolder
+### `/new-client-system-pro` — PRO: Client Project Scaffolder
 
 Scaffold a new client's full stack — Next.js 16 frontend dashboard + Trigger.dev backend worker — from the Shiney automations template. Produces structure only; no automations are scaffolded — those are added later.
 
@@ -166,7 +166,7 @@ Scaffold a new client's full stack — Next.js 16 frontend dashboard + Trigger.d
 
 ---
 
-### `/researcher` — Deep Research Analyst
+### `/researcher-pro` — PRO: Deep Research Analyst
 
 Deep research on any topic using web search, multiple sources, and synthesis. Delivers well-organized, actionable summaries with sources.
 
@@ -176,7 +176,7 @@ Deep research on any topic using web search, multiple sources, and synthesis. De
 
 ---
 
-### `/scalability` — Scalability Engineer
+### `/scalability-pro` — PRO: Scalability Engineer
 
 Design and build scalable software systems. Covers database scaling, caching strategies, async processing, API design for scale, concurrency, frontend performance, observability, and infrastructure patterns.
 
@@ -188,7 +188,7 @@ Design and build scalable software systems. Covers database scaling, caching str
 
 ---
 
-### `/security` — Application Security
+### `/security-pro` — PRO: Application Security
 
 Secure web and desktop application development. Covers OWASP Top 10, XSS, CSRF, SQL injection, SSRF, command injection, path traversal, Electron/Tauri IPC security, and more.
 
@@ -200,7 +200,7 @@ Secure web and desktop application development. Covers OWASP Top 10, XSS, CSRF, 
 
 ---
 
-### `/self-healing` — Self-Improvement Engine
+### `/self-healing-pro` — PRO: Self-Improvement Engine
 
 Continuously improve Claude's effectiveness by recognizing patterns, saving memory, creating skills, and refining project knowledge. Learns from repeated workflows and past problems.
 
@@ -212,7 +212,7 @@ Continuously improve Claude's effectiveness by recognizing patterns, saving memo
 
 ---
 
-### `/setup-codex-precheck` — Codex Pre-Edit Review Hook
+### `/setup-codex-precheck-pro` — PRO: Codex Pre-Edit Review Hook
 
 Install a PreToolUse hook that asks the codex CLI to review every Edit/Write/MultiEdit before it is written, blocking risky changes. Checks prerequisites (codex, python3, codex login) and installs anything missing.
 
@@ -224,7 +224,7 @@ Install a PreToolUse hook that asks the codex CLI to review every Edit/Write/Mul
 
 ---
 
-### `/trigger-dev` — Trigger.dev Background Jobs
+### `/trigger-dev-pro` — PRO: Trigger.dev Background Jobs
 
 Build Trigger.dev background jobs, automations, and workflows in TypeScript. Create tasks, scheduled jobs, AI agent workflows, queued background processing, cron jobs, and long-running async work.
 
@@ -236,7 +236,7 @@ Build Trigger.dev background jobs, automations, and workflows in TypeScript. Cre
 
 ---
 
-### `/upwork` — Upwork Profile Optimizer
+### `/upwork-pro` — PRO: Upwork Profile Optimizer
 
 Audit and rewrite Upwork freelancer profiles using patterns from Top Rated Plus / Expert Vetted top earners. Improve headlines, bios, overviews, specialized profiles, project catalogs, skills tags, and more.
 
@@ -248,7 +248,7 @@ Audit and rewrite Upwork freelancer profiles using patterns from Top Rated Plus 
 
 ---
 
-### `/upwork-proposal` — Upwork Proposal Writer
+### `/upwork-proposal-pro` — PRO: Upwork Proposal Writer
 
 Write a high-converting Upwork proposal for a job post. Paste a job description and get a tailored, compelling cover letter.
 
@@ -258,7 +258,7 @@ Write a high-converting Upwork proposal for a job post. Paste a job description 
 
 ---
 
-### `/wrapup` — Session Summary
+### `/wrapup-pro` — PRO: Session Summary
 
 End-of-session cleanup that generates a structured markdown summary and saves it to `.claude/memory/`.
 
@@ -267,7 +267,7 @@ End-of-session cleanup that generates a structured markdown summary and saves it
 - Before handing off a project to another developer
 - After major architectural decisions
 
-**Invoke**: Type `/wrapup` in Claude Code.
+**Invoke**: Type `/wrapup-pro` in Claude Code.
 
 **Output**: `.claude/memory/session-<timestamp>.md` + append to `.claude/memory/decisions.md`
 

@@ -69,16 +69,20 @@ jobs:
           test -f "CLAUDE.md"
           echo "CLAUDE.md exists in project root"
 
-      # Step 8: Verify custom skills were installed (all 20)
-      - name: Verify skills were installed
+      # Step 8: Verify PRO skills were installed (all 20)
+      - name: Verify PRO skills were installed
         run: |
           test -d .claude/skills
           # Count skill directories with SKILL.md
           SKILL_COUNT=$(find .claude/skills -name "SKILL.md" | wc -l)
-          echo "Found $SKILL_COUNT skills installed"
+          echo "Found $SKILL_COUNT PRO skills installed"
           test "$SKILL_COUNT" -ge 20
-          # Spot-check a few key skills
-          test -f .claude/skills/wrapup/SKILL.md
-          test -f .claude/skills/researcher/SKILL.md
-          test -f .claude/skills/security/SKILL.md
-          echo "All skills verified"
+          # Verify PRO format: watermark in frontmatter
+          grep -r "antigravity-pro" .claude/skills/*/SKILL.md | wc -l | xargs -I{} echo "Watermarked skills: {}"
+          # Verify graphify integration
+          grep -r "WORKSPACE ACTION PROOF" .claude/skills/*/SKILL.md | wc -l | xargs -I{} echo "Graphify-integrated skills: {}"
+          # Spot-check key PRO skills
+          test -f .claude/skills/wrapup-pro/SKILL.md
+          test -f .claude/skills/researcher-pro/SKILL.md
+          test -f .claude/skills/security-pro/SKILL.md
+          echo "All PRO skills verified"
