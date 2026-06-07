@@ -1,0 +1,37 @@
+# Byte-compiled Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Graphify output
+graphify-out/
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Virtual environments
+.venv/
+venv/
+.env/
+
+# Agent local data
+.agents/memory/
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
+# Logs
+*.log
